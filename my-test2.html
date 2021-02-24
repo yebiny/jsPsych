@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>YEBBI Experiment</title>
+<script src= "jspsych.js"></script>
+<script src= "plugins/jspsych-html-keyboard-response.js"></script>
+<script src= "plugins/jspsych-image-keyboard-response.js"></script>
+<script src= "plugins/jspsych-fullscreen.js"></script>
+<link href= "css/jspsych.css" rel="stylesheet", type="text/css"></script>
+</head>
+<body>
+NOTHING..
+</body>
+
+
+<script>
+
+// create timeline //
+timeline=[];
+
+// enter fullscreen mode //
+var mode_init = {
+        type: 'fullscreen',
+        fullscreen_mode:true
+        };
+
+// message //
+var mode_welcome = {
+        type: "html-keyboard-response",
+        stimulus: "Welcome to Yebbi's Experiment"
+        };
+
+var mode_waitting = {
+        type: "html-keyboard-response",
+        stimulus: "Wating, Press any key if you ready to Next test set"
+        };
+
+var mode_finish = {
+        type: "html-keyboard-response",
+        stimulus: "Thank you! Experiment finishied!. Press any key."
+        };
+
+// instruction //
+var mode_instruction = {
+        type:"html-keyboard-response",
+        stimulus:"<p>In this experiment, a circle will appear in the center " +
+        "of the screen.</p><p>If the circle is <strong>blue</strong>, " +
+        "press the letter F on the keyboard as fast as you can.</p>" +
+        "<p>If the circle is <strong>orange</strong>, press the letter J " +
+        "as fast as you can.</p>" +
+        "<div style='width: 700px;'>" +
+        "<div style='float: left;'><img src='img/blue.png'></img>" +
+        "<p class='small'><strong>Press the F key</strong></p></div>" +
+        "<div class='float: right;'><img src='img/orange.png'></img>" +
+        "<p class='small'><strong>Press the J key</strong></p></div>" +
+        "</div>" +
+        "<p>Press any key to begin.</p>",
+        post_trial_gap: 2000
+        };
+
+timeline.push(mode_init);
+timeline.push(mode_welcome);
+timeline.push(mode_instruction);
+
+/* test trials */
+var stim = ["img/blue.png", "img/orange.png"];
+var trial_length = 10;
+var cond = [];
+
+for (var i=0; i<10; i++){
+    cond[i] = [];
+    var duration = Math.floor(Math.random()*(2000-500)+500); //between 500~2000ms
+    cond[i].push(i+1, duration);
+    };
+
+for (var k=0; k<cond.length; k++){
+    var fixation = {
+    type: 'html-keyboard-response',
+    stimulus: '<div style="font-size:60px;">+</div>',
+    choices: jsPsych.NO_KEYS,
+    trial_duration: cond[k][1],
+    };
+
+    if (cond[k][0] % 2 == 0) {//is even number
+        var test = {
+            type: 'image-keyboard-response',
+            stimulus: stim[0],
+            choices: ['f','j'],
+            data: {test_part:'test', correct_response:'j'},
+            on_finish: function(data){
+                data.correct = data.response == data.correct_response
+                }
+            }
+    }
+    else{
+        var test = 
+            {
+            type: 'image-keyboard-response',
+            stimulus: stim[1],
+            choices: ['f','j'],
+            data: {test_part:'test', correct_response:'j'},
+            on_finish: function(data){
+                data.correct = data.response == data.correct_response
+                }
+            }
+    };
+    
+    var test_procedure = {
+            timeline: [fixation, test]
+            }
+    timeline.push(test_procedure);
+};
+
+
+timeline.push({
+    type: 'fullscreen',
+    fullscreen_mode: false
+});
+
+// log data to console in json format //
+var interaction_data = jsPsych.data.getInteractionData();
+console.log(interaction_data.json());
+
+
+// start the experiment //
+jsPsych.init({
+        timeline: timeline,
+        on_finish: function(){
+            jsPsych.data.displayData();
+            }
+        });
+
+</script>
+</html>
